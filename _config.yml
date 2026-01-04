@@ -1,32 +1,13 @@
-# Welcome to Jekyll!
-#
-# About Theme
-#
-# Yet another theme for elegant writers with modern flat style and beautiful
-# night/dark mode.
-#
-# Website: https://github.com/jeffreytse/jekyll-theme-yat
-#
-# You can do anything you want, including projects for your clients, as long
-# as you mention an attribution back (credit links in footer or project).
-# See the LICENCE file.
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely edit after that.
-#
-# For technical reasons, this file is *NOT* reloaded automatically when you
-# use 'bundle exec jekyll serve'. If you change this file, please restart
-# the server process.
-#
+
 # Site settings
 # These are used to personalize your new site. If you look in the HTML files,
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Matthew Neilly
+title: Neilly
 email: matthew@neilly.tech
-author: AccentedMatt
+author: Matthew Neilly
 
 # Copyright setting
 # You can use any html code, currently below placeholders are available:
@@ -40,10 +21,10 @@ author: AccentedMatt
 #   "Copyright (c) 2017-{currentYear} <a href="https://example.com">{author}</a>"
 #   "Copyright © 2017-2021 Foobar"
 #
-copyright: "Copyright (cleft) 2026-{currentYear} {author}"
+copyright: "Copyright (c) 2026-{currentYear} <a href="https://neilly.tech"{author}</a>"
 
 description: >- # this means to ignore newlines until "baseurl:"
-  Test (3)
+  Matthew Neilly | Cyber Security
 
 baseurl: "/" # the subpath of your site, e.g. /blog
 url: "https://www.neilly.tech" # the base hostname & protocol for your site, e.g. https://example.com
@@ -77,28 +58,12 @@ yat:
 # langs refer to https://cloud.google.com/translate/docs/languages
 # translate_langs:
 #   - lang: en
-#     img: https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png
+#     img: https://cdn.countryflags.com/thumbs/united-kingdom/flag-400.png
 #     text: English
-#
-#   - lang: fr
-#     img: https://cdn.countryflags.com/thumbs/france/flag-400.png
-#     text: French
-#
-#   - lang: zh-CN
-#     img: https://cdn.countryflags.com/thumbs/china/flag-400.png
-#     text: Chinese(Simple)
-#
 #   - lang: ja
 #     img: https://cdn.countryflags.com/thumbs/japan/flag-400.png
 #     text: Japanese
 #
-#   - lang: ko
-#     img: https://cdn.countryflags.com/thumbs/south-korea/flag-400.png
-#     text: Korean
-#
-#   - lang: ru
-#     img: https://cdn.countryflags.com/thumbs/russia/flag-400.png
-#     text: Russian
 
 # You can choose a theme color
 # Default theme colors as below:
@@ -138,7 +103,7 @@ yat:
 # it will be always kept on every visit (i.e. no matter
 # the browser is closed or not)
 #
-# night_mode: "auto"
+# night_mode: "manual"
 
 # Code badge setting
 # You can enable or disable the code badge and so on
@@ -160,9 +125,9 @@ yat:
 # Page default value
 # defaults:
 #   home:
-#     heading: "Your awesome heading"
-#     subheading: "Your awesome subheading"
-#     banner: "Your image url"
+#     heading: "Matthew Neilly"
+#     subheading: "Cyber Fanatic"
+#     banner: "[ADD IMAGE URL]"
 
 # Banner default settings
 # These banner settings are for global banner default, but you can also
@@ -211,31 +176,6 @@ yat:
 #   dark:
 #     background_color: "#34323d"
 #     color: "#bbb"
-
-# Disqus comments
-# disqus:
-#   shortname: "Your Disqus username"
-#   enable_recommendations: false
-#   enable_comments: true
-
-# Gitment comments
-# gitment:
-#   username: "Your GitHub username"
-#   repo: "The repo to store comments"
-#   client_id: "Your client ID"
-#   client_secret: "Your client secret"
-#   redirect_uri: "Your redirect url"   # If you use a custom domain name
-
-# Utterances comments
-# See https://utteranc.es/
-# set follow_site_theme true to make utterances' theme follow the site's
-
-# utterances:
-#   repo: "owner/repo"
-#   issue_term: "title"
-#   label: "utterances comment"
-#   theme: "github-light"
-#   follow_site_theme: true
 
 # Build settings
 # highlighter: none
