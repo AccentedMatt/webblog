@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://www.neilly.tech/feed.xml" rel="self" type="application/atom+xml" /><link href="https://www.neilly.tech/" rel="alternate" type="text/html" /><updated>2026-01-04T16:25:25+00:00</updated><id>https://www.neilly.tech/feed.xml</id><title type="html">M Neilly</title><subtitle>Matthew Neilly |  Cyber Security</subtitle><author><name>Matthew Neilly</name></author><entry><title type="html">A New Year</title><link href="https://www.neilly.tech/2026/01/04/The-Start.html" rel="alternate" type="text/html" title="A New Year" /><published>2026-01-04T00:00:00+00:00</published><updated>2026-01-04T00:00:00+00:00</updated><id>https://www.neilly.tech/2026/01/04/The-Start</id><content type="html" xml:base="https://www.neilly.tech/2026/01/04/The-Start.html"><![CDATA[<h1 id="happy-new-year-everyone-its-2016-plus-another-10-years">Happy New Year Everyone! It’s 2016 (plus another 10 years)</h1>
+
+<p><img src="https://i.imgflip.com/wn3ep.jpg" alt="" /></p>
+
+<h2 id="a-new-website">A New website?</h2>
+
+<p>So, you’ve stumbled here. Intrigued by what is happening or you’re just another web-scraping bot. No worries.</p>
+
+<p>This year, I plan on writing at least one article a week on computer-related activities that I have been up-to, whether that
+be a rant or an actually genuinely helpful tutorial. The idea of this is to help me keep track of what I have done and document
+everything I have been doing for future reference. I was never good at keeping a personal diary of content so by doing a public
+promise, I hope, that I can keep something going here.</p>
+
+<h2 id="why-say-new-website">Why say “New website”?</h2>
+
+<p>Well, I had a website before but it was horrifically formatted and I never really took care of it so I abolished it off 
+the face of the earth. It’s still there on the wayback machine (much like the rest of the web) so if any of you want to have
+a good chuckle at primary school level HTML, fire away.</p>
+
+<h2 id="this-week">This week</h2>
+
+<p>This week has been a busy one. With the start of the new year, I didn’t get nearly as much stuff done as I would of liked
+I set up this website using <a href="https://github.com/jeffreytse/jekyll-theme-yat">jekyll-theme-yat</a> and set it up to be statically 
+hosted on github pages, luckily I’m finding that much easier to do than before. This also proved to be a good use of 
+remembering how to navigate github as due to both my university studies and my JLPT exam (not to mention adding in work), 
+I’ve neglected doing any big personal projects; that is something I hope to change this coming year.</p>
+
+<p>In the homelab, I finally made the move to make some of my east-west traffic encrypted. I was reading into using ACME but opted 
+to do a local root authority as it just works out easier to manage (albeit, everyone has to install a certificate). It’s nice to 
+see the URL Bar stop screaming at me that it’s “Not Secure” even when using some of my services native HTTPS. This HTTPS shenanigans
+will be a re-occuring theme I think so let’s hope I don’t lose the root authority keys. Air-gapping doesn’t stop stupidity of course.👀</p>
+
+<p>Speaking of air-gapping, I imagine most of you know about Stuxnet by now. If not, here’s a good read till we see each other again:
+<a href="https://spectrum.ieee.org/the-real-story-of-stuxnet">The Real Story of Stuxnet</a></p>]]></content><author><name>Matthew Neilly</name></author><category term="ideas" /><category term="New_Years_Resolution" /><summary type="html"><![CDATA[Happy New Year Everyone! It’s 2016 (plus another 10 years)]]></summary></entry></feed>
