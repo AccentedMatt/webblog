@@ -5,7 +5,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Neilly
+title: M Neilly
 email: matthew@neilly.tech
 author: Matthew Neilly
 
@@ -21,7 +21,7 @@ author: Matthew Neilly
 #   "Copyright (c) 2017-{currentYear} <a href="https://example.com">{author}</a>"
 #   "Copyright © 2017-2021 Foobar"
 #
-copyright: "Copyright (c) 2026-{currentYear} <a href="https://neilly.tech"{author}</a>"
+copyright: "Copyright (c) 2026-{currentYear} <a href="https://neilly.tech">{author}</a>"
 
 description: >- # this means to ignore newlines until "baseurl:"
   Matthew Neilly | Cyber Security
@@ -44,12 +44,8 @@ yat:
 # If you want to change the content width, you can set to another value
 # content_width: "920px"
 
-# Google analytics - GA4
-# google_analytics: [Measurement ID]
-# enableDNT: "false"
-
 # If you want to generate website sitemap, you can set true
-# sitemap: false
+# sitemap: true
 
 # If you want to change site language, you can set lang option
 # lang: "en"  # default lang is en
