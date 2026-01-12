@@ -71,7 +71,7 @@ user@my-pc:~$ openssl genpkey -algorithm ED25519 -out root.key
 What we will see in the directory that we executed this in is a root.key file. This file will contain our private key that we can use in generation
 of our Root Certificate. 
 
-[^2] [High-speed high-security signatures; Daniel J. Bernstein, Niels Duif ,Tanja Lange, Peter Schwabe and Bo-Yin Yang](https://ed25519.cr.yp.to/ed25519-20110926.pdf)
+[^2]: [High-speed high-security signatures; Daniel J. Bernstein, Niels Duif ,Tanja Lange, Peter Schwabe and Bo-Yin Yang](https://ed25519.cr.yp.to/ed25519-20110926.pdf)
 
 ### Using RSA for key generation
 
@@ -86,7 +86,7 @@ What we will see in the directory that we executed this in is a root.key file. T
 of our Root Certificate. The last value 2048 is our key size. We can customise this value to be a 2^n value (512, 1024, 2048, 4096). 
 We cannot go lower than 512 [^3] .
 
-[^3] [OpenSSL Documentation: openssl-genrsa](https://docs.openssl.org/3.0/man1/openssl-genrsa/)
+[^3]: [OpenSSL Documentation: openssl-genrsa](https://docs.openssl.org/3.0/man1/openssl-genrsa/)
 
 ## Generating the Root Certificate
 
