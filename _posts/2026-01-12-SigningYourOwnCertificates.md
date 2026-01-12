@@ -60,7 +60,7 @@ If you are having doubts on which key algorithm to use, please resort to the RSA
 
 We can use elliptic-curve cryptography for generating the key our root authority will use. Much of the public infrastructure will not support
 elliptic-curve cryptography. However, for our purposes in our own environment, using ECC is significantly faster and more secure than other key
-generation methods as we do not rely on data that could be grabbed through a side-channel attack[^2].
+generation methods as we do not rely on data that could be grabbed through a side-channel attack [^2] .
 
 To generate our ED25519 key, we will run the following command:
 
@@ -84,7 +84,7 @@ user@my-pc:~$ openssl genrsa -out root.key 2048
 
 What we will see in the directory that we executed this in is a root.key file. This file will contain our private key that we can use in generation
 of our Root Certificate. The last value 2048 is our key size. We can customise this value to be a 2^n value (512, 1024, 2048, 4096). 
-We cannot go lower than 512[^3].
+We cannot go lower than 512 [^3] .
 
 [^3] [OpenSSL Documentation: openssl-genrsa](https://docs.openssl.org/3.0/man1/openssl-genrsa/)
 
