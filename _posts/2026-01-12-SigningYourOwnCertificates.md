@@ -149,7 +149,7 @@ At this stage, we can now look at creating the CSR for our server. I highly reco
 prompt from OpenSSL. We can customise our certificate much more this way. To create the CSR, we will first run touch then we can enter the file using
 the text editor of our choice. 
 
-~~~txt
+~~~
 [ req ]
 default_bits = 2048
 prompt = no
