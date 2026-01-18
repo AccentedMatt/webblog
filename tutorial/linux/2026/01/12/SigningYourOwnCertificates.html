@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Linux - Signing your own certificates | M Neilly</title>
+<meta name="generator" content="Jekyll v4.4.1">
+<meta property="og:title" content="Linux - Signing your own certificates">
+<meta name="author" content="Matthew Neilly">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="Preface">
+<meta property="og:description" content="Preface">
+<link rel="canonical" href="https://www.neilly.tech/tutorial/linux/2026/01/12/SigningYourOwnCertificates.html">
+<meta property="og:url" content="https://www.neilly.tech/tutorial/linux/2026/01/12/SigningYourOwnCertificates.html">
+<meta property="og:site_name" content="M Neilly">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-01-12T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="Linux - Signing your own certificates">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Matthew Neilly"},"dateModified":"2026-01-12T00:00:00+00:00","datePublished":"2026-01-12T00:00:00+00:00","description":"Preface","headline":"Linux - Signing your own certificates","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.neilly.tech/tutorial/linux/2026/01/12/SigningYourOwnCertificates.html"},"url":"https://www.neilly.tech/tutorial/linux/2026/01/12/SigningYourOwnCertificates.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="icon" href="">
+  <link rel="canonical" href="https://www.neilly.tech">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <script src="/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://www.neilly.tech/feed.xml" title="M Neilly">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js" async></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+<script src="//cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.7/umd/photoswipe-lightbox.umd.min.js" async></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.7/umd/photoswipe.umd.min.js" async></script>
+<link href="//cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.7/photoswipe.min.css" rel="stylesheet">
+<style>
+  .pswp .pswp__container .pswp__img {
+    background-color: white;
+  }
+</style>
+
+<script>
+  function initPhotoSwipe() {
+    let customOptions = {};
+
+    try {
+      const data = ``.replaceAll("=>", ":");
+      customOptions = JSON.parse(data);
+    } catch (e) {
+      console.info("Invalid custom photo previewer options! " + e.message);
+    }
+
+    // Define object and gallery options
+    const options = Object.assign(
+      {
+        gallery: "section.main",
+        children: "a.photo-swipe",
+        photo_scale: 2,
+        // dynamic import is not supported in UMD version
+        pswpModule: PhotoSwipe,
+      },
+      customOptions
+    );
+
+    const galleryEl = document.querySelector(options.gallery);
+    if (!galleryEl) {
+      return;
+    }
+
+    const imgEls = [];
+    const els = galleryEl.querySelectorAll("img:not(.emoji)");
+    els.forEach((el) => {
+      if (el.src.trim() == "") {
+        return;
+      }
+      if (!imgEls.includes(el)) {
+        imgEls.push(el);
+      }
+    });
+
+    if (imgEls.length === 0) {
+      return;
+    }
+
+    imgEls.forEach((imgEl) => {
+      imgEl.outerHTML = `
+      <a class="photo-swipe"
+        href="${imgEl.src}"
+        data-pswp-width="${
+          Math.max(imgEl.naturalWidth, imgEl.width) * options.photo_scale
+        }"
+        data-pswp-height="${
+          Math.max(imgEl.naturalHeight, imgEl.height) * options.photo_scale
+        }"
+        data-pswp-caption="${imgEl.getAttribute("caption") || imgEl.alt}"
+        target="_blank">
+        ${imgEl.outerHTML}
+      </a>`;
+    });
+
+    // Initialize PhotoSwipe 5
+    var lightbox = new PhotoSwipeLightbox(options);
+
+    lightbox.init();
+  }
+
+  window.addEventListener("load", initPhotoSwipe);
+</script>
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/">
+  <img class="site-favicon" title="M Neilly" src="" onerror="this.style.display='none'">
+  M Neilly
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/about.html">ABOUT</a><a class="page-link" href="/archives.html">ARCHIVES</a><a class="page-link" href="/categories.html">CATEGORIES</a><a class="page-link" href="/">HOME</a><a class="page-link" href="/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<div class="page-link" style="display: inline;">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<div class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-kingdom/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
+</div>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+        document.dispatchEvent(new Event('theme-changed'));
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">Linux - Signing your own certificates</h1>
+  <h2 class="post-subtitle">How to become your own Root CA to create your own TLS/SSL certificates using Linux</h2>
+
+  <div class="post-meta">
+    <time class="dt-published" datetime="2026-01-12T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Jan 12, 2026
+    </time>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 13 mins</span>
+  </div>
+<div class="post-tags">
+<a class="post-tag" href="/tags.html#tutorial">#tutorial</a><a class="post-tag" href="/tags.html#RootCA">#RootCA</a><a class="post-tag" href="/tags.html#openssl">#openssl</a><a class="post-tag" href="/tags.html#X.509">#X.509</a><a class="post-tag" href="/tags.html#TLS">#TLS</a><a class="post-tag" href="/tags.html#SSL">#SSL</a><a class="post-tag" href="/tags.html#PKI">#PKI</a><a class="post-tag" href="/tags.html#509">#509</a><a class="post-tag" href="/tags.html#certificates">#certificates</a><a class="post-tag" href="/tags.html#Linux">#Linux</a><a class="post-tag" href="/tags.html#PublicKeyInfrastructure">#PublicKeyInfrastructure</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="preface">Preface</h2>
+
+<p>I recommend if you are deploying a live service to investigate ACME. These certificates should be
+automatically recognised by the end user for any ACME provider. An example provider would be 
+<a href="https://letsencrypt.org/docs/client-options/">Let’s Encrypt</a>  who offer their services for free.</p>
+
+<h2 id="what-is-tls">What is TLS?</h2>
+
+<p>Transport Layer Security (TLS) is a cryptographic protocol that supersedes SSL (Secure Sockets Layer).
+A majority of the internet, from IoT devices to the web browser you are viewing this on, uses TLS/SSL. 98%
+of webpages loaded using a Chrome browser in the United States utilise HTTPS, which is supported by TLS/SSL <sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup> .</p>
+
+<p>TLS/SSL is everywhere and it requires almost 0% effort from the user to use (they have to ensure they are using https 
+if they are viewing webpages of course). This makes it a viable tool of everyday internet security. TLS works by
+ensuring traffic between the client and the server are encrypted, reducing the likelihood of Man-in-the-Middle attacks.
+This is a gross oversimplification but for our purposes, we only need to understand that it is here to help encrypted traffic 
+from client to server and vice versa.</p>
+
+<p>Like many other things in life, TLS works by utilising a chain of trust. There are multiple layers of trust placed here, starting
+from the Root Certificate Authority who give their stamp of approval all the way down to an End-Entity Certificate (that’s what
+we need).</p>
+
+<h2 id="ensuring-openssl-is-installed">Ensuring OpenSSL is installed</h2>
+
+<p>The first step we must look at when becoming our own Root Certificate Authority, or Root CA for short, is ensuring we have the 
+OpenSSL library installed:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl version
+<span class="go">OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)
+</span></code></pre></div></div>
+
+<p>If you don’t get an output similar to above, we must install OpenSSL. We can do that with this command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span><span class="nb">sudo </span>apt update <span class="nt">-y</span> <span class="o">&amp;&amp;</span> <span class="nb">sudo </span>apt <span class="nb">install </span>openssl
+</code></pre></div></div>
+
+<p>This command will update our packages list and then get the openssl library. Following this, run the version command again to ensure 
+that OpenSSL is installed. Once installed, we can now start to consider generating our Root Certificate.</p>
+
+<h2 id="generating-roots-private-key">Generating Root’s Private Key</h2>
+
+<p>Here, we can take two approaches to key generation. If all of our internal infrastructure is fairly modern we can use ED25519. If not, 
+we can resort back to RSA. ED25519 is generally considered more secure than RSA but RSA is supported by many more devices than ED25519. 
+If you are having doubts on which key algorithm to use, please resort to the RSA section.</p>
+
+<h3 id="using-ed25519-for-key-generation">Using ED25519 for key generation</h3>
+
+<p>We can use elliptic-curve cryptography for generating the key our root authority will use. Much of the public infrastructure will not support
+elliptic-curve cryptography. However, for our purposes in our own environment, using ECC is significantly faster and more secure than other key
+generation methods as we do not rely on data that could be grabbed through a side-channel attack <sup id="fnref:2"><a href="#fn:2" class="footnote" rel="footnote" role="doc-noteref">2</a></sup> .</p>
+
+<p>To generate our ED25519 key, we will run the following command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl genpkey <span class="nt">-algorithm</span> ED25519 <span class="nt">-out</span> root.key 
+</code></pre></div></div>
+
+<p>What we will see in the directory that we executed this in is a root.key file. This file will contain our private key that we can use in generation
+of our Root Certificate.</p>
+
+<h3 id="using-rsa-for-key-generation">Using RSA for key generation</h3>
+
+<p>For reliability purposes, RSA key generation can be used. RSA is more widely supported than more modern cryptographic suites. To generate 
+a RSA key for use in our Root Certificate, we will execute the following command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl genrsa <span class="nt">-out</span> root.key 2048
+</code></pre></div></div>
+
+<p>What we will see in the directory that we executed this in is a root.key file. This file will contain our private key that we can use in generation
+of our Root Certificate. The last value 2048 is our key size. We can customise this value to be a 2^n value (512, 1024, 2048, 4096). 
+We cannot go lower than 512 <sup id="fnref:3"><a href="#fn:3" class="footnote" rel="footnote" role="doc-noteref">3</a></sup> .</p>
+
+<h2 id="generating-the-root-certificate">Generating the Root Certificate</h2>
+
+<p>Now we’re at the part of becoming our creating our own Root Authority Certificate. At this point, we will need to pass in significantly 
+more flags than we did for the last step:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl req <span class="nt">-x509</span> <span class="nt">-new</span> <span class="nt">-noenc</span> <span class="nt">-key</span> root.key <span class="nt">-sha256</span> <span class="nt">-days</span> 1827 <span class="nt">-out</span> root.crt
+</code></pre></div></div>
+
+<p>The req command is usually used for creating a certificate request (CSR) but in our case, it can be used to generate a self-signed certificate. 
+The first flag we will pass in is the -x509 flag. This flag will inform the OpenSSL tool that we will want to generate a certificate instead of a 
+certificate request. -new will generate a certificate request, we will look at that below in a second. -noenc ensures that if a private key is
+created that it will not be encrypted. -key allows us to pass in the key we just generated. -sha256 hashes our key using the SHA-256 method (this
+flag is actually ignored if we generated a ED25519 key as ED25519 utilises an internal hash function). -days is how many days this certificate will 
+remain valid (1827 days is five years) and finally the -out flag, which tells OpenSSL to output our certificate to the ca.crt file.</p>
+
+<p>Once this command has been run, you’ll be prompted for some additional information. Remember the -new flag I said we’d talk about it in a second? 
+Well we’re looking at it in action now. This flag will prompt us for information to fill out our Root Certificate.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">Country Name (2 letter code) [AU]: GB
+State or Province Name (full name) [Some-State]: .
+Locality Name (eg, city) []: .
+Organization Name (eg, company) [Internet Widgits Pty Ltd]: Matt's Lab
+Organizational Unit Name (eg, section) []: .
+Common Name (e.g server FQDN or Your Name) []: Matthew Neilly
+Email Address []: matthew@neilly.tech
+</span></code></pre></div></div>
+
+<p>As you might have noticed, for some I placed a full-stop. That instructs within our CSR that we want that field to be left blank. Do not press enter
+on its own as it will auto-fill the information contained between the square brackets. Luckily this is a lab environment but your certificate will
+not match what you want. You can customise this to match your local environment requirements. Once completed, we will be able to see the ca.crt file 
+appear in the same directory that our root.key is. This ca.crt file will feature a header and footer showing where the certificate starts and ends. 
+Contained between the header and footer is the body of our certificate that is encoded in a base64 format.</p>
+
+<p>Although not mandatory, we can check our certificate matches what we input. To do so, we can run the following command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">openssl x509 -in root.crt -text -noout
+</span></code></pre></div></div>
+
+<p>This will output the contents of the certificate to the screen, in a slightly easier format to read than decrypting the base64 itself.</p>
+
+<p>Congratulations! You will have now created your Root Certificate that we can use to sign more certificates. Now onto the server certificate.</p>
+
+<h2 id="generating-the-server-certificate">Generating the Server Certificate</h2>
+
+<p>Much like last time, we need to generate a new unique private key to use for our server. We wouldn’t want to have the RootCA’s private key be
+identical to the server’s private key. To do so, we will run the same command as last time, changing the name from root.key to server.key:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl genrsa <span class="nt">-out</span> server.key 2048
+</code></pre></div></div>
+
+<p>You can also use ED25519 at this stage too. To do so, run the same command as last time ensuring you change the root.key to server.key. If you lose 
+the root.key, you will not be able to sign certificates for your server.</p>
+
+<p>At this stage, we can now look at creating the CSR for our server. I highly recommend creating a servercsr.conf file rather than relying on the 
+prompt from OpenSSL. We can customise our certificate much more this way. To create the CSR, we will first run touch then we can enter the file using
+the text editor of our choice.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ req ]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn
+
+[ dn ]
+C = GB
+ST = State-Chaos
+L = At Home
+O = Matt's Lab
+OU = Home Lab
+CN = webserver.lan
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = webserver
+DNS.2 = webserver.lan
+IP.1 = 10.10.10.10
+IP.2 = 10.10.10.20
+</code></pre></div></div>
+
+<p>Please adjust to your requirements, we can remove DNS entries or IP entries if we do not want them to be valid. I am using a fictional web server that 
+is hosted locally and is mapped to webserver.lan. If we try to access the domain using an IP when we only have DNS mapped, it will tell us that the domain
+is not secure and vice versa if we omit DNS entries but then access the server using DNS. This error would be because we’ve told the certificate that we
+only want users to access using either IP/DNS. Within the [ dn ] section, this includes all of our organisational info. If needed, look up letters that 
+can be accepted in this step.</p>
+
+<p>Okay, we have a configuration file. We now need to actually create the CSR request using the private key for the server and the configuration file we just 
+created:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl req <span class="nt">-new</span> <span class="nt">-key</span> server.key <span class="nt">-out</span> server.csr <span class="nt">-config</span> servercsr.conf
+</code></pre></div></div>
+
+<p>This will generate a CSR that will be saved at server.csr. We now need to use this, along with a handful of other components to generate the TLS/SSL certificate
+for our server. To do so, we will run:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl x509 <span class="nt">-req</span> <span class="nt">-in</span> server.csr <span class="nt">-CA</span> root.crt <span class="nt">-CAkey</span> root.key <span class="nt">-CAcreateserial</span> <span class="se">\</span>
+<span class="go">              -out server.crt -days 365 -extensions req_ext -extfile servercsr.conf
+</span></code></pre></div></div>
+
+<p>Quite a large command, I know however we are just compiling everything from the root authority and the server csr together to generate one big certificate
+that can be located in the server.crt file. Once again, this certificate will be encoded in base64 with a header and footer for where the certificate starts
+and end. This server.crt file along with the server.key kept on the server of use is the file we can use to secure traffic.</p>
+
+<h2 id="trusting-root">Trusting Root</h2>
+
+<p>If you have gone through and set up the private key and certificate on your server. You may have utilised it for securing HTTPS traffic. You may have also
+noticed that it is warning us that our traffic is not secure. What’s up with that? Remember back at the start, I mentioned that everything works based on trust?
+This chain of trust is pre-installed on every machine trusting only a finite number of Root Authorities. To make our certificate worthwhile, we can take our 
+root certificate and install it on our local machine. To do so, we must export the root.crt file onto all of our local machines. To install on Windows, we
+can import our root certificate by running “certlm.msc” in our run bar. This will open us to the certificate manager. From here, we can “visit ‘Action’, 
+then go to All Tasks → Import”. From here, you can follow the instructions prompted by Windows to install the certificate.</p>
+
+<p>On Linux, it’s slightly easier. We will add our root certificate to our certificate store. To do so we will copy it to the local certificate store and then
+run the update certificates command to propagate our new root certificate throughout the system:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">sudo cp root.crt /usr/local/share/ca-certificates/ &amp;&amp; sudo update-ca-certificates
+</span></code></pre></div></div>
+
+<p>At this stage, after adding your root certificate to your local machine, some browsers like to act up. To remediate this, restart your browser
+so that it refreshes the certificate store that the browser caches.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Congratulations, you have now become your own Root Authority and can sign server certificates to your heart’s content. Please be mindful of how long
+you have set your certificate validity period to. Once the certificate expires, it will complain a lot about an insecure connection. Additionally, you 
+can lose your server.key and server.crt’s (not that I advise it) and generate a new cert quite easily. If you lose your root.key, you may find yourself
+having a hard time and will be required to conduct this entire process again.</p>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1">
+      <p><a href="https://transparencyreport.google.com/https/overview">HTTPS usage in Chrome worldwide</a> <a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
+    </li>
+    <li id="fn:2">
+      <p><a href="https://ed25519.cr.yp.to/ed25519-20110926.pdf">High-speed high-security signatures; Daniel J. Bernstein, Niels Duif ,Tanja Lange, Peter Schwabe and Bo-Yin Yang</a> <a href="#fnref:2" class="reversefootnote" role="doc-backlink">↩</a></p>
+    </li>
+    <li id="fn:3">
+      <p><a href="https://docs.openssl.org/3.0/man1/openssl-genrsa/">OpenSSL Documentation: openssl-genrsa</a> <a href="#fnref:3" class="reversefootnote" role="doc-backlink">↩</a></p>
+    </li>
+  </ol>
+</div>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/2026/01/11/Week-2.html" title="Week 2 - Exploit beginnings">
+          <div>Week 2 - Exploit beginnings</div>
+        </a><a class="next" href="/diary/2026/01/18/Week-3.html" title="Week 3 - Putting a SOC in it">
+          <div>Week 3 - Putting a SOC in it</div>
+        </a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li class="">
+          <a class="post-link" href="/diary/2026/01/18/Week-3.html" title="Week 3 - Putting a SOC in it">
+            Week 3 - Putting a SOC in it<span class="post-badges">
+  <span class="post-badge badge-top">TOP</span>
+  <span class="post-badge badge-new">NEW</span>
+</span>
+</a>
+        </li>
+<li class="">
+          <a class="post-link" href="/2026/01/11/Week-2.html" title="Week 2 - Exploit beginnings">
+            Week 2 - Exploit beginnings<span class="post-badges">
+  <span class="post-badge badge-top">TOP</span>
+  <span class="post-badge badge-new">NEW</span>
+</span>
+</a>
+        </li>
+<li class="">
+          <a class="post-link" href="/2026/01/04/The-Start.html" title="A New Year">
+            A New Year<span class="post-badges">
+  <span class="post-badge badge-top">TOP</span>
+  <span class="post-badge badge-new">NEW</span>
+</span>
+</a>
+        </li>
+<li class="">
+          <a class="post-link" href="/tutorial/linux/2026/01/12/SigningYourOwnCertificates.html" title="Linux - Signing your own certificates">
+            Linux - Signing your own certificates<span class="post-badges">
+  <span class="post-badge badge-top">TOP</span>
+  <span class="post-badge badge-new">NEW</span>
+</span>
+</a>
+        </li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Copyright © 2026-2026 Matthew Neilly</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

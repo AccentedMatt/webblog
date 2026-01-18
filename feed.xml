@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://www.neilly.tech/feed.xml" rel="self" type="application/atom+xml" /><link href="https://www.neilly.tech/" rel="alternate" type="text/html" /><updated>2026-01-18T21:15:25+00:00</updated><id>https://www.neilly.tech/feed.xml</id><title type="html">M Neilly</title><subtitle>Matthew Neilly |  Cyber Security</subtitle><author><name>Matthew Neilly</name></author><entry><title type="html">Week 3 - Putting a SOC in it</title><link href="https://www.neilly.tech/diary/2026/01/18/Week-3.html" rel="alternate" type="text/html" title="Week 3 - Putting a SOC in it" /><published>2026-01-18T00:00:00+00:00</published><updated>2026-01-18T00:00:00+00:00</updated><id>https://www.neilly.tech/diary/2026/01/18/Week-3</id><content type="html" xml:base="https://www.neilly.tech/diary/2026/01/18/Week-3.html"><![CDATA[<p>Week 3 already? Just another entry to post.</p>
+
+<h2 id="this-week">This week</h2>
+
+<p>I went a bit ham this week and purchased a handful of hardware to load Proxmox onto. This proved a bigger headache
+than I initially planned… I decided that it was time to give the Proxmox nodes proper names (with me adding more
+to the cluster) so I renamed the cluster nodes following the Proxmox documentation. This… well… didn’t go as planned
+and turned more into a disaster recovery environment for about 30 minutes. I exported all the important files I needed
+from the containers to an external drive that I could later reference.</p>
+
+<p>This proved helpful though, with everything exported off, I determined a fresh install was probably in order. So, I nuked
+the entire Proxmox environment and started from fresh. Now with better IP management, better VM/Container design and a 
+fresh area to deploy into. Once cleared, I established a cluster and now can nicely access all the machines from a single
+machine’s interface.</p>
+
+<p>You may wonder about the title… A SOC? Okay, maybe not exactly a complete security centre but I deployed a Wazuh stack. It’s a SIEM and XDR
+platform. It is open-source and free (unless you’re using their cloud service in which of course it’ll cost something, it’s a SaaS model 
+after all). Having a SIEM was something I meant to set up for a long time. I investigated into Splunk but Splunk’s free tier is 
+really bad for anything apart from basic learning and luckily, most SIEMs have the same style of design, therefore Wazuh seemed right.</p>
+
+<p>It took two tries to get working, mainly having the indexer talk to the server and the server host out to the dashboard. Wazuh is
+scalable but deploying it as a single node stack is also very popular.</p>
+
+<h2 id="yikes">Yikes!</h2>
+
+<p>Yeah, I established Wazuh, hardened the system and established agents and oh boy… I believed my security awareness was pretty good. 
+I always did updates when I saw them available to me, I always ran checksums to ensure I get the correct file at the end and I always made 
+sure I’m not running anything dodgy on my system. However… When the initial report returned from my desktop agent. I was horrified to see:</p>
+
+<p><img src="https://www.neilly.tech/assets/images/diary/week3-2026/before.jpg" alt="SIEM CVE scan result before remediation" /></p>
+
+<p>WHAT?! 61 Critical vulnerabilities, 809 High vulnerabilities and over 100 Medium/Low vulnerabilities on my own machine? What is actually
+going on? Turns out, there is so much software on my computer that I may, at one point, have had one specific niche use case for that I hadn’t 
+opened it in maybe 3-4 years. So, straight to remediation I went. I must’ve regained about 100GB of space by getting rid of software I just didn’t need.
+Did all that pay off? Well, this is what we got when the agent sent a report back:</p>
+
+<p><img src="https://www.neilly.tech/assets/images/diary/week3-2026/after.jpg" alt="SIEM CVE scan result after remediation" /></p>
+
+<p>Much better and I found dark mode too. Light mode burns the retinas off you, so I’m glad I checked around for that setting. We can see that it doesn’t say
+0 across the board, that’s because I have a few false positives and I’ve already cleared them and ensured that they are false before adding them to
+my ignore list.</p>
+
+<h2 id="lessons-learnt">Lessons learnt</h2>
+
+<p>Always plan like you are going to scale, even if you don’t and honestly just get rid of software you don’t use anymore. If you need to use it again, you can 
+reinstall it again. It’s good to see that my attack surface has decreased massively. Till next week.</p>]]></content><author><name>Matthew Neilly</name></author><category term="diary" /><category term="diary" /><category term="wazuh" /><category term="SIEM" /><category term="security" /><summary type="html"><![CDATA[Week 3 already? Just another entry to post.]]></summary></entry><entry><title type="html">Linux - Signing your own certificates</title><link href="https://www.neilly.tech/tutorial/linux/2026/01/12/SigningYourOwnCertificates.html" rel="alternate" type="text/html" title="Linux - Signing your own certificates" /><published>2026-01-12T00:00:00+00:00</published><updated>2026-01-12T00:00:00+00:00</updated><id>https://www.neilly.tech/tutorial/linux/2026/01/12/SigningYourOwnCertificates</id><content type="html" xml:base="https://www.neilly.tech/tutorial/linux/2026/01/12/SigningYourOwnCertificates.html"><![CDATA[<h2 id="preface">Preface</h2>
+
+<p>I recommend if you are deploying a live service to investigate ACME. These certificates should be
+automatically recognised by the end user for any ACME provider. An example provider would be 
+<a href="https://letsencrypt.org/docs/client-options/">Let’s Encrypt</a>  who offer their services for free.</p>
+
+<h2 id="what-is-tls">What is TLS?</h2>
+
+<p>Transport Layer Security (TLS) is a cryptographic protocol that supersedes SSL (Secure Sockets Layer).
+A majority of the internet, from IoT devices to the web browser you are viewing this on, uses TLS/SSL. 98%
+of webpages loaded using a Chrome browser in the United States utilise HTTPS, which is supported by TLS/SSL <sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup> .</p>
+
+<p>TLS/SSL is everywhere and it requires almost 0% effort from the user to use (they have to ensure they are using https 
+if they are viewing webpages of course). This makes it a viable tool of everyday internet security. TLS works by
+ensuring traffic between the client and the server are encrypted, reducing the likelihood of Man-in-the-Middle attacks.
+This is a gross oversimplification but for our purposes, we only need to understand that it is here to help encrypted traffic 
+from client to server and vice versa.</p>
+
+<p>Like many other things in life, TLS works by utilising a chain of trust. There are multiple layers of trust placed here, starting
+from the Root Certificate Authority who give their stamp of approval all the way down to an End-Entity Certificate (that’s what
+we need).</p>
+
+<h2 id="ensuring-openssl-is-installed">Ensuring OpenSSL is installed</h2>
+
+<p>The first step we must look at when becoming our own Root Certificate Authority, or Root CA for short, is ensuring we have the 
+OpenSSL library installed:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl version
+<span class="go">OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)
+</span></code></pre></div></div>
+
+<p>If you don’t get an output similar to above, we must install OpenSSL. We can do that with this command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span><span class="nb">sudo </span>apt update <span class="nt">-y</span> <span class="o">&amp;&amp;</span> <span class="nb">sudo </span>apt <span class="nb">install </span>openssl
+</code></pre></div></div>
+
+<p>This command will update our packages list and then get the openssl library. Following this, run the version command again to ensure 
+that OpenSSL is installed. Once installed, we can now start to consider generating our Root Certificate.</p>
+
+<h2 id="generating-roots-private-key">Generating Root’s Private Key</h2>
+
+<p>Here, we can take two approaches to key generation. If all of our internal infrastructure is fairly modern we can use ED25519. If not, 
+we can resort back to RSA. ED25519 is generally considered more secure than RSA but RSA is supported by many more devices than ED25519. 
+If you are having doubts on which key algorithm to use, please resort to the RSA section.</p>
+
+<h3 id="using-ed25519-for-key-generation">Using ED25519 for key generation</h3>
+
+<p>We can use elliptic-curve cryptography for generating the key our root authority will use. Much of the public infrastructure will not support
+elliptic-curve cryptography. However, for our purposes in our own environment, using ECC is significantly faster and more secure than other key
+generation methods as we do not rely on data that could be grabbed through a side-channel attack <sup id="fnref:2"><a href="#fn:2" class="footnote" rel="footnote" role="doc-noteref">2</a></sup> .</p>
+
+<p>To generate our ED25519 key, we will run the following command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl genpkey <span class="nt">-algorithm</span> ED25519 <span class="nt">-out</span> root.key 
+</code></pre></div></div>
+
+<p>What we will see in the directory that we executed this in is a root.key file. This file will contain our private key that we can use in generation
+of our Root Certificate.</p>
+
+<h3 id="using-rsa-for-key-generation">Using RSA for key generation</h3>
+
+<p>For reliability purposes, RSA key generation can be used. RSA is more widely supported than more modern cryptographic suites. To generate 
+a RSA key for use in our Root Certificate, we will execute the following command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl genrsa <span class="nt">-out</span> root.key 2048
+</code></pre></div></div>
+
+<p>What we will see in the directory that we executed this in is a root.key file. This file will contain our private key that we can use in generation
+of our Root Certificate. The last value 2048 is our key size. We can customise this value to be a 2^n value (512, 1024, 2048, 4096). 
+We cannot go lower than 512 <sup id="fnref:3"><a href="#fn:3" class="footnote" rel="footnote" role="doc-noteref">3</a></sup> .</p>
+
+<h2 id="generating-the-root-certificate">Generating the Root Certificate</h2>
+
+<p>Now we’re at the part of becoming our creating our own Root Authority Certificate. At this point, we will need to pass in significantly 
+more flags than we did for the last step:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl req <span class="nt">-x509</span> <span class="nt">-new</span> <span class="nt">-noenc</span> <span class="nt">-key</span> root.key <span class="nt">-sha256</span> <span class="nt">-days</span> 1827 <span class="nt">-out</span> root.crt
+</code></pre></div></div>
+
+<p>The req command is usually used for creating a certificate request (CSR) but in our case, it can be used to generate a self-signed certificate. 
+The first flag we will pass in is the -x509 flag. This flag will inform the OpenSSL tool that we will want to generate a certificate instead of a 
+certificate request. -new will generate a certificate request, we will look at that below in a second. -noenc ensures that if a private key is
+created that it will not be encrypted. -key allows us to pass in the key we just generated. -sha256 hashes our key using the SHA-256 method (this
+flag is actually ignored if we generated a ED25519 key as ED25519 utilises an internal hash function). -days is how many days this certificate will 
+remain valid (1827 days is five years) and finally the -out flag, which tells OpenSSL to output our certificate to the ca.crt file.</p>
+
+<p>Once this command has been run, you’ll be prompted for some additional information. Remember the -new flag I said we’d talk about it in a second? 
+Well we’re looking at it in action now. This flag will prompt us for information to fill out our Root Certificate.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">Country Name (2 letter code) [AU]: GB
+State or Province Name (full name) [Some-State]: .
+Locality Name (eg, city) []: .
+Organization Name (eg, company) [Internet Widgits Pty Ltd]: Matt's Lab
+Organizational Unit Name (eg, section) []: .
+Common Name (e.g server FQDN or Your Name) []: Matthew Neilly
+Email Address []: matthew@neilly.tech
+</span></code></pre></div></div>
+
+<p>As you might have noticed, for some I placed a full-stop. That instructs within our CSR that we want that field to be left blank. Do not press enter
+on its own as it will auto-fill the information contained between the square brackets. Luckily this is a lab environment but your certificate will
+not match what you want. You can customise this to match your local environment requirements. Once completed, we will be able to see the ca.crt file 
+appear in the same directory that our root.key is. This ca.crt file will feature a header and footer showing where the certificate starts and ends. 
+Contained between the header and footer is the body of our certificate that is encoded in a base64 format.</p>
+
+<p>Although not mandatory, we can check our certificate matches what we input. To do so, we can run the following command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">openssl x509 -in root.crt -text -noout
+</span></code></pre></div></div>
+
+<p>This will output the contents of the certificate to the screen, in a slightly easier format to read than decrypting the base64 itself.</p>
+
+<p>Congratulations! You will have now created your Root Certificate that we can use to sign more certificates. Now onto the server certificate.</p>
+
+<h2 id="generating-the-server-certificate">Generating the Server Certificate</h2>
+
+<p>Much like last time, we need to generate a new unique private key to use for our server. We wouldn’t want to have the RootCA’s private key be
+identical to the server’s private key. To do so, we will run the same command as last time, changing the name from root.key to server.key:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl genrsa <span class="nt">-out</span> server.key 2048
+</code></pre></div></div>
+
+<p>You can also use ED25519 at this stage too. To do so, run the same command as last time ensuring you change the root.key to server.key. If you lose 
+the root.key, you will not be able to sign certificates for your server.</p>
+
+<p>At this stage, we can now look at creating the CSR for our server. I highly recommend creating a servercsr.conf file rather than relying on the 
+prompt from OpenSSL. We can customise our certificate much more this way. To create the CSR, we will first run touch then we can enter the file using
+the text editor of our choice.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ req ]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn
+
+[ dn ]
+C = GB
+ST = State-Chaos
+L = At Home
+O = Matt's Lab
+OU = Home Lab
+CN = webserver.lan
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = webserver
+DNS.2 = webserver.lan
+IP.1 = 10.10.10.10
+IP.2 = 10.10.10.20
+</code></pre></div></div>
+
+<p>Please adjust to your requirements, we can remove DNS entries or IP entries if we do not want them to be valid. I am using a fictional web server that 
+is hosted locally and is mapped to webserver.lan. If we try to access the domain using an IP when we only have DNS mapped, it will tell us that the domain
+is not secure and vice versa if we omit DNS entries but then access the server using DNS. This error would be because we’ve told the certificate that we
+only want users to access using either IP/DNS. Within the [ dn ] section, this includes all of our organisational info. If needed, look up letters that 
+can be accepted in this step.</p>
+
+<p>Okay, we have a configuration file. We now need to actually create the CSR request using the private key for the server and the configuration file we just 
+created:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl req <span class="nt">-new</span> <span class="nt">-key</span> server.key <span class="nt">-out</span> server.csr <span class="nt">-config</span> servercsr.conf
+</code></pre></div></div>
+
+<p>This will generate a CSR that will be saved at server.csr. We now need to use this, along with a handful of other components to generate the TLS/SSL certificate
+for our server. To do so, we will run:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@my-pc:~$</span><span class="w"> </span>openssl x509 <span class="nt">-req</span> <span class="nt">-in</span> server.csr <span class="nt">-CA</span> root.crt <span class="nt">-CAkey</span> root.key <span class="nt">-CAcreateserial</span> <span class="se">\</span>
+<span class="go">              -out server.crt -days 365 -extensions req_ext -extfile servercsr.conf
+</span></code></pre></div></div>
+
+<p>Quite a large command, I know however we are just compiling everything from the root authority and the server csr together to generate one big certificate
+that can be located in the server.crt file. Once again, this certificate will be encoded in base64 with a header and footer for where the certificate starts
+and end. This server.crt file along with the server.key kept on the server of use is the file we can use to secure traffic.</p>
+
+<h2 id="trusting-root">Trusting Root</h2>
+
+<p>If you have gone through and set up the private key and certificate on your server. You may have utilised it for securing HTTPS traffic. You may have also
+noticed that it is warning us that our traffic is not secure. What’s up with that? Remember back at the start, I mentioned that everything works based on trust?
+This chain of trust is pre-installed on every machine trusting only a finite number of Root Authorities. To make our certificate worthwhile, we can take our 
+root certificate and install it on our local machine. To do so, we must export the root.crt file onto all of our local machines. To install on Windows, we
+can import our root certificate by running “certlm.msc” in our run bar. This will open us to the certificate manager. From here, we can “visit ‘Action’, 
+then go to All Tasks → Import”. From here, you can follow the instructions prompted by Windows to install the certificate.</p>
+
+<p>On Linux, it’s slightly easier. We will add our root certificate to our certificate store. To do so we will copy it to the local certificate store and then
+run the update certificates command to propagate our new root certificate throughout the system:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">sudo cp root.crt /usr/local/share/ca-certificates/ &amp;&amp; sudo update-ca-certificates
+</span></code></pre></div></div>
+
+<p>At this stage, after adding your root certificate to your local machine, some browsers like to act up. To remediate this, restart your browser
+so that it refreshes the certificate store that the browser caches.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Congratulations, you have now become your own Root Authority and can sign server certificates to your heart’s content. Please be mindful of how long
+you have set your certificate validity period to. Once the certificate expires, it will complain a lot about an insecure connection. Additionally, you 
+can lose your server.key and server.crt’s (not that I advise it) and generate a new cert quite easily. If you lose your root.key, you may find yourself
+having a hard time and will be required to conduct this entire process again.</p>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1">
+      <p><a href="https://transparencyreport.google.com/https/overview">HTTPS usage in Chrome worldwide</a> <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p><a href="https://ed25519.cr.yp.to/ed25519-20110926.pdf">High-speed high-security signatures; Daniel J. Bernstein, Niels Duif ,Tanja Lange, Peter Schwabe and Bo-Yin Yang</a> <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p><a href="https://docs.openssl.org/3.0/man1/openssl-genrsa/">OpenSSL Documentation: openssl-genrsa</a> <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>]]></content><author><name>Matthew Neilly</name></author><category term="tutorial" /><category term="linux" /><category term="tutorial" /><category term="RootCA" /><category term="openssl" /><category term="X.509" /><category term="TLS" /><category term="SSL" /><category term="PKI" /><category term="509" /><category term="certificates" /><category term="Linux" /><category term="PublicKeyInfrastructure" /><summary type="html"><![CDATA[Preface]]></summary></entry><entry><title type="html">Week 2 - Exploit beginnings</title><link href="https://www.neilly.tech/2026/01/11/Week-2.html" rel="alternate" type="text/html" title="Week 2 - Exploit beginnings" /><published>2026-01-11T00:00:00+00:00</published><updated>2026-01-11T00:00:00+00:00</updated><id>https://www.neilly.tech/2026/01/11/Week-2</id><content type="html" xml:base="https://www.neilly.tech/2026/01/11/Week-2.html"><![CDATA[<h2 id="this-week">This week</h2>
+
+<p>I was back to University this Monday, luckily this has not distracted me from keeping this going.
+This week I have done a few things:</p>
+
+<p>Firstly: I have finally installed <a href="https://www.gimp.org/">GIMP</a> and uninstalled adobe from my environment as much as I can. 
+It is rather parasitic having to spent £16.24 a month on adobe products (and I know that cost only went up after I quit way 
+back in September). Old habits die hard and so it does seem that way. As this journaling progress, I do pray that the images 
+only get better. As you may have seen from the front page, there was an excerpt image. That was made using GIMP. 
+My photoshop-rotted brain has had a hard time adjusting but it’ll only get better, I promise.</p>
+
+<p>Secondly: Metasploit. This week I had a look into metasploit and experimented.</p>
+
+<h2 id="metasploit">Metasploit</h2>
+
+<p>What is metasploit? Well, from the guys themselves:</p>
+
+<blockquote>
+  <p>Metasploit is a penetration testing platform that enables you to find, exploit, and validate vulnerabilities.<sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup></p>
+</blockquote>
+
+<p>Okay, thats great! How exactly do we use these exploits? Well, after you set up metasploit on your local machine, you can 
+visit your Bash console and run the following command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user@your-pc:~#</span><span class="w"> </span>msfconsole
+</code></pre></div></div>
+
+<p>You’ll then be loaded into the Metasploit Framework where we can launch many exploits and be greeted by some nice ASCII art. 
+At the time of writing this, there are over 2500 exploits and well over 1000 auxilaries present on Metasploit. In here, we have 
+a range of exploits at our disposal, ethically of course. The oldest I can find on here, when sorted by disclourse date, is from
+1st January 1999. That’s older than me. It is a persistence exploit that makes use of the /etc/update-motd.d/ to launch a script 
+everytime a user logs into the machine. It executes with root privileges everytime too, handy.</p>
+
+<p>That’s not all we can do tho, we can also search by <a href="https://www.cve.org/">CVE</a>. This helps narrow down our search to more recent exploits.
+When we search for CVEs from 2025. We get a handful of results back.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">msf6 &gt;</span><span class="w"> </span>search cve:2025
+<span class="go">
+Matching Modules
+================
+
+</span><span class="gp">   #</span><span class="w">  </span>Name                                                Disclosure Date  Rank       Check  Description
+<span class="go">   -  ----                                                ---------------  ----       -----  -----------
+   0  exploit/linux/http/beyondtrust_pra_rs_unauth_rce    2024-12-16       excellent  Yes    BeyondTrust Privileged Remote Access (PRA) and Remote Support (RS) unauthenticated Remote Code Execution
+   1  exploit/linux/http/dtale_rce_cve_2025_0655          2025-02-05       excellent  Yes    D-Tale RCE
+   2  auxiliary/gather/glpi_inventory_plugin_unauth_sqli  2025-03-12       normal     Yes    GLPI Inventory Plugin Unauthenticated Blind Boolean SQLi
+   3  exploit/windows/fileformat/winrar_ace               2019-02-05       excellent  No     RARLAB WinRAR ACE Format Input Validation Remote Code Execution
+   4  auxiliary/admin/scada/mypro_mgr_creds               2025-02-13       normal     Yes    mySCADA myPRO Manager Credential Harvester (CVE-2025-24865 and CVE-2025-22896)
+</span></code></pre></div></div>
+
+<p>As we can notice, not all of these exploits share their disclosure date with the year 2025. That’s because these exploits may have existed
+for much longer before they were allocated a CVE or may have been known without an official CVE id for quite a long time.</p>
+
+<p>Knowing the machine you are attacking is really helpful. There is no point placing an explosive charge on the side of the wall if the front
+door is wide open. Therefor we should use a few tools for finding our front door. Nmap is a great example… however, metasploit can also 
+provide this capability for us. there are a multitude of scanner options available to us in metasploit. This isn’t a full blown tutorial however 
+so you’ll just have to download it yourself and play around. It’s a better way to learn than reading through this and having the confidence of
+“Yeah, I kinda get this” and then, when required, freeze on the spot. We can also launch nmap from within the msfconsole itself.</p>
+
+<p>Metasploit is an incredible resource and I’ve only scratched the surface of this vast framework. For those interested, visit metasploit’s ‘help’ section.
+If you are following it from this web page, I’m sure your bored_status does in fact equal true. You’ll be slightly confused but hey, anything to cure the
+boredom. またね</p>
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1">
+      <p><a href="https://help.rapid7.com/metasploit/Content/getting-started/gsg-pro.html">Getting Started with Metasploit</a> <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>]]></content><author><name>Matthew Neilly</name></author><category term="metasploit" /><category term="security" /><category term="cve" /><category term="exploits" /><category term="framework" /><summary type="html"><![CDATA[This week]]></summary></entry><entry><title type="html">A New Year</title><link href="https://www.neilly.tech/2026/01/04/The-Start.html" rel="alternate" type="text/html" title="A New Year" /><published>2026-01-04T00:00:00+00:00</published><updated>2026-01-04T00:00:00+00:00</updated><id>https://www.neilly.tech/2026/01/04/The-Start</id><content type="html" xml:base="https://www.neilly.tech/2026/01/04/The-Start.html"><![CDATA[<h1 id="happy-new-year-everyone-its-2016-plus-another-10-years">Happy New Year Everyone! It’s 2016 (plus another 10 years)</h1>
+
+<p><img src="https://i.imgflip.com/wn3ep.jpg" alt="" /></p>
+
+<h2 id="a-new-website">A New website?</h2>
+
+<p>So, you’ve stumbled here. Intrigued by what is happening or you’re just another web-scraping bot. No worries.</p>
+
+<p>This year, I plan on writing at least one article a week on computer-related activities that I have been up-to, whether that
+be a rant or an actually genuinely helpful tutorial. The idea of this is to help me keep track of what I have done and document
+everything I have been doing for future reference. I was never good at keeping a personal diary of content so by doing a public
+promise, I hope, that I can keep something going here.</p>
+
+<h2 id="why-say-new-website">Why say “New website”?</h2>
+
+<p>Well, I had a website before but it was horrifically formatted and I never really took care of it so I abolished it off 
+the face of the earth. It’s still there on the wayback machine (much like the rest of the web) so if any of you want to have
+a good chuckle at primary school level HTML, fire away.</p>
+
+<h2 id="this-week">This week</h2>
+
+<p>This week has been a busy one. With the start of the new year, I didn’t get nearly as much stuff done as I would of liked
+I set up this website using <a href="https://github.com/jeffreytse/jekyll-theme-yat">jekyll-theme-yat</a> and set it up to be statically 
+hosted on github pages, luckily I’m finding that much easier to do than before. This also proved to be a good use of 
+remembering how to navigate github as due to both my university studies and my JLPT exam (not to mention adding in work), 
+I’ve neglected doing any big personal projects; that is something I hope to change this coming year.</p>
+
+<p>In the homelab, I finally made the move to make some of my east-west traffic encrypted. I was reading into using ACME but opted 
+to do a local root authority as it just works out easier to manage (albeit, everyone has to install a certificate). It’s nice to 
+see the URL Bar stop screaming at me that it’s “Not Secure” even when using some of my services native HTTPS. This HTTPS shenanigans
+will be a re-occuring theme I think so let’s hope I don’t lose the root authority keys. Air-gapping doesn’t stop stupidity of course.👀</p>
+
+<p>Speaking of air-gapping, I imagine most of you know about Stuxnet by now. If not, here’s a good read till we see each other again:
+<a href="https://spectrum.ieee.org/the-real-story-of-stuxnet">The Real Story of Stuxnet</a></p>]]></content><author><name>Matthew Neilly</name></author><category term="ideas" /><category term="New_Years_Resolution" /><summary type="html"><![CDATA[Happy New Year Everyone! It’s 2016 (plus another 10 years)]]></summary></entry></feed>
