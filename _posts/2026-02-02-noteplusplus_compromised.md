@@ -38,7 +38,7 @@ is no longer required.
 ## How was it discovered?
 
 When utilising Notepad++'s updater (GUP.exe), an unexpected executable began to appear in a Temp folder (named AutoUpdater.exe).
-This strange behaviour, reported by user sot-parsley on the Notepad++ community forum, appears to be well documented. [^2]
+This strange behaviour, reported by user soft-parsley on the Notepad++ community forum, appears to be well documented. [^2]
 
 Initially this AutoUpdater.exe would start in Notepad++, Notepad++ would call gup.exe and then AutoUpdater would spawn from there.
 
