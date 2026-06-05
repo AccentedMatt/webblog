@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Notepad++ Compromised
-subtitle: Notepad++ has been compromised by State-Sponsored Hackers
+subtitle: Notepad++ compromised at a supply chain level
 excerpt_image: /assets/images/excerpts/notepad++comp_china.jpg
 tags: Notepad++ APT State-Sponsored_Hackers attack
 categories: news
